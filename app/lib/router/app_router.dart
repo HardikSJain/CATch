@@ -13,7 +13,9 @@ import '../domain/repositories/stats_repository.dart';
 import '../presentation/home/home_screen.dart';
 import '../presentation/home/cubit/home_cubit.dart';
 import '../presentation/practice/practice_screen.dart';
+import '../presentation/practice/review_screen.dart';
 import '../presentation/practice/cubit/practice_cubit.dart';
+import '../presentation/practice/cubit/review_cubit.dart';
 import '../presentation/learn/concepts_screen.dart';
 import '../presentation/learn/cubit/concepts_cubit.dart';
 import '../presentation/learn/flashcard_screen.dart';
@@ -88,6 +90,14 @@ final appRouter = GoRouter(
           child: PracticeScreen(mode: modeStr, section: section),
         );
       },
+    ),
+    GoRoute(
+      path: '/practice/review',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => BlocProvider(
+        create: (_) => ReviewCubit(sl<QuestionRepository>())..load(),
+        child: const ReviewScreen(),
+      ),
     ),
     GoRoute(
       path: '/learn/review',
