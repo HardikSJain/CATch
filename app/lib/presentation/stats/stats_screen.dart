@@ -75,13 +75,13 @@ class StatsScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         _StatCard(
-                          label: 'Correct',
-                          value: '${state.overall['correct'] ?? 0}',
+                          label: 'Accuracy',
+                          value: '${state.overall['accuracy'] ?? 0}%',
                         ),
                         const SizedBox(width: 12),
                         _StatCard(
-                          label: 'Accuracy',
-                          value: '${state.overall['accuracy'] ?? 0}%',
+                          label: 'Avg Time',
+                          value: '${state.overall['avg_time'] ?? 0}s',
                         ),
                       ],
                     ),
@@ -107,6 +107,8 @@ class StatsScreen extends StatelessWidget {
                       final correct = (row['correct'] as num?)?.toInt() ?? 0;
                       final accuracy =
                           ((row['accuracy'] as num?)?.toDouble() ?? 0) * 100;
+                      final avgTime =
+                          (row['avg_time'] as num?)?.round() ?? 0;
 
                       return _TopicRow(
                         topic: topic,
@@ -114,6 +116,7 @@ class StatsScreen extends StatelessWidget {
                         total: topicTotal,
                         correct: correct,
                         accuracy: accuracy,
+                        avgTime: avgTime,
                       );
                     }),
 
@@ -239,6 +242,7 @@ class _TopicRow extends StatelessWidget {
   final int total;
   final int correct;
   final double accuracy;
+  final int avgTime;
 
   const _TopicRow({
     required this.topic,
@@ -246,6 +250,7 @@ class _TopicRow extends StatelessWidget {
     required this.total,
     required this.correct,
     required this.accuracy,
+    required this.avgTime,
   });
 
   @override
@@ -266,6 +271,17 @@ class _TopicRow extends StatelessWidget {
                   ),
                 ),
               ),
+              if (avgTime > 0) ...[
+                Text(
+                  '${avgTime}s',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'monospace',
+                    color: AppColors.grey400,
+                  ),
+                ),
+                const SizedBox(width: 10),
+              ],
               Text(
                 '$correct/$total',
                 style: const TextStyle(

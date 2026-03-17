@@ -1,3 +1,4 @@
+import '../../data/models/answered_question.dart';
 import '../../data/models/question.dart';
 import '../../domain/repositories/question_repository.dart';
 import 'database_service.dart';
@@ -104,5 +105,23 @@ class LocalQuestionRepository implements QuestionRepository {
       LIMIT ?
     ''', [days, limit]);
     return maps.map(Question.fromMap).toList();
+  }
+
+  @override
+  Future<List<AnsweredQuestion>> getAnsweredQuestions({
+    bool wrongOnly = false,
+    int limit = 50,
+  }) async {
+    final db = await _dbService.database;
+    final whereClause = wrongOnly ? 'WHERE ua.is_correct = 0' : '';
+    final maps = await db.rawQuery('''
+      SELECT q.*, ua.user_answer, ua.is_correct, ua.time_taken_seconds
+      FROM questions q
+      JOIN user_attempts ua ON ua.question_id = q.id
+      $whereClause
+      ORDER BY ua.attempted_at DESC
+      LIMIT ?
+    ''', [limit]);
+    return maps.map(AnsweredQuestion.fromMap).toList();
   }
 }

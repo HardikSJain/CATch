@@ -12,18 +12,21 @@ class LocalStatsRepository implements StatsRepository {
     final result = await db.rawQuery('''
       SELECT
         COUNT(*) as total,
-        SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct
+        SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
+        AVG(time_taken_seconds) as avg_time
       FROM user_attempts
     ''');
 
     final total = (result.first['total'] as int?) ?? 0;
     final correct = (result.first['correct'] as int?) ?? 0;
     final accuracy = total > 0 ? (correct / total * 100).round() : 0;
+    final avgTime = (result.first['avg_time'] as num?)?.round() ?? 0;
 
     return {
       'total': total,
       'correct': correct,
       'accuracy': accuracy,
+      'avg_time': avgTime,
     };
   }
 
@@ -36,7 +39,8 @@ class LocalStatsRepository implements StatsRepository {
         q.topic,
         COUNT(*) as total,
         SUM(CASE WHEN ua.is_correct = 1 THEN 1 ELSE 0 END) as correct,
-        AVG(CASE WHEN ua.is_correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy
+        AVG(CASE WHEN ua.is_correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy,
+        AVG(ua.time_taken_seconds) as avg_time
       FROM user_attempts ua
       JOIN questions q ON q.id = ua.question_id
       GROUP BY q.section, q.topic

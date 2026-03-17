@@ -61,6 +61,13 @@ class PracticeMenuScreen extends StatelessWidget {
               icon: Icons.replay_outlined,
               onTap: () => context.push('/practice/session?mode=retry_missed'),
             ),
+            const SizedBox(height: 12),
+            _PracticeOption(
+              title: 'Quick Review',
+              subtitle: 'Browse past answers & explanations',
+              icon: Icons.history_outlined,
+              onTap: () => context.push('/practice/review'),
+            ),
           ],
         ),
       ),
@@ -267,7 +274,16 @@ class _PracticeScreenState extends State<PracticeScreen>
           context.pop();
         }
       },
-      child: BlocBuilder<PracticeCubit, PracticeState>(
+      child: BlocConsumer<PracticeCubit, PracticeState>(
+        listener: (context, state) {
+          if (state.status == PracticeStatus.submitted) {
+            if (state.isCorrect) {
+              HapticFeedback.lightImpact();
+            } else {
+              HapticFeedback.heavyImpact();
+            }
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             backgroundColor: Colors.white,
@@ -498,7 +514,6 @@ class _QuestionView extends StatelessWidget {
                     'Check',
                     enabled: state.selectedOption != null,
                     onTap: () {
-                      HapticFeedback.lightImpact();
                       context.read<PracticeCubit>().submitAnswer();
                     },
                   ),

@@ -1,3 +1,4 @@
+import '../../data/models/answered_question.dart';
 import '../../data/models/question.dart';
 
 abstract class QuestionRepository {
@@ -16,4 +17,11 @@ abstract class QuestionRepository {
 
   /// Get previously wrong questions from the last [days] days.
   Future<List<Question>> getMissedQuestions({int days = 7, int limit = 30});
+
+  /// Get previously answered questions with attempt data for review.
+  /// If [wrongOnly] is true, only returns incorrect answers.
+  Future<List<AnsweredQuestion>> getAnsweredQuestions({
+    bool wrongOnly = false,
+    int limit = 50,
+  });
 }
