@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": 1,
+      "section": "QA",
+      "topic": "Number Systems",
+      "title": "Types of Numbers",
+      "content": "• Natural Numbers: 1, 2, 3, ... (positive integers for counting)\n• Whole Numbers: 0, 1, 2, 3, ... (natural numbers + zero)\n• Integers: ..., -2, -1, 0, 1, 2, ... (whole numbers + negatives)\n• Prime Numbers: divisible only by 1 and itself (2, 3, 5, 7, 11...)\n  - 2 is the only even prime\n  - 1 is NOT prime\n  - Primes 1-100: 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97 (25 primes)\n• Composite Numbers: at least one divisor other than 1 and itself\n• Rational Numbers: expressible as p/q (q ≠ 0)\n• Irrational Numbers: √2, √3, π, e (infinite non-recurring decimals)",
+      "sort_order": 1
+    },
+    {
+      "id": 2,
+      "section": "QA",
+      "topic": "Number Systems",
+      "title": "Prime Number Properties",
+      "content": "• For prime p ≥ 5: remainder when divided by 6 is always 1 or 5\n• For prime p > 3: p² − 1 is always divisible by 24\n• For prime p > 3: p² + 17 divided by 12 leaves remainder 6\n• If a, b are odd primes: a² − b² is composite, a² + b² is composite\n\nPrime Checking Shortcut:\n1. Find √N, round up to z\n2. Check divisibility by all primes below z\n3. If no prime divides N → N is prime\n\nRanges:\n• Below 49: check divisibility by 2, 3, 5 only\n• 49-121: also remember 77, 91, 119 are NOT prime\n• 121-169: also remember 133, 143, 161 are NOT prime",
+      "sort_order": 2
+    },
+    {
+      "id": 3,
+      "section": "QA",
+      "topic": "Number Systems",
+      "title": "LCM & HCF",
+      "content": "LCM (Least Common Multiple):\n• Write numbers in standard form (prime factorization)\n• LCM = product of all primes with HIGHEST powers\n• Example: LCM(12, 18) = 2² × 3² = 36\n\nHCF (Highest Common Factor):\n• HCF = product of all COMMON primes with LOWEST powers\n• Example: HCF(12, 18) = 2 × 3 = 6\n\nKey Formula: HCF × LCM = Product of two numbers\n\nStandard Form:\n• 80 = 2⁴ × 5\n• 84 = 2² × 3 × 7\n• 24 = 2³ × 3",
+      "sort_order": 3
+    },
+    {
+      "id": 4,
+      "section": "QA",
+      "topic": "Number Systems",
+      "title": "Rules of Indices & Operations",
+      "content": "Exponent Rules:\n• nᵃ × nᵇ = nᵃ⁺ᵇ\n• nᵃ / nᵇ = nᵃ⁻ᵇ\n• (nᵃ)ᵇ = nᵃᵇ\n• n⁻ᵃ = 1/nᵃ\n• n⁰ = 1\n\nOdd/Even Rules:\n• Odd × Odd = Odd\n• Odd + Odd = Even\n• Even × Even = Even\n• Odd × Even = Even\n• Odd + Even = Odd\n\nBODMAS: Brackets → Orders → Division → Multiplication → Addition → Subtraction\n\nPower of prime p in n!:\nSum = ⌊n/p⌋ + ⌊n/p²⌋ + ⌊n/p³⌋ + ...\nExample: Highest power of 3 in 24! = 8 + 2 + 0 = 10",
+      "sort_order": 4
+    },
+    {
+      "id": 5,
+      "section": "VARC",
+      "topic": "Parajumbles",
+      "title": "Solving Parajumbles",
+      "content": "9 Structural Types:\n1. Cause & Effect\n2. Generic to Specific\n3. Contrast\n4. Parallelisms\n5. Idea — Explanation/Elaboration\n6. Chronological (time dimension)\n7. Action Sequence\n8. Idea Transformation\n9. Idea Reiteration\n\nKey Tips:\n• Find the opening sentence (introduces the topic)\n• Locate the topic sentence (anchor)\n• Find logical relationships (cause-effect, contrast)\n• Find the concluding sentence\n\nClues:\n• \"also\", \"similarly\", \"however\", \"thus\", \"therefore\", \"this\" → NOT the first sentence\n• \"But\", \"However\", \"Despite\" → signals contrast, cannot open paragraph",
+      "sort_order": 1
+    },
+    {
+      "id": 6,
+      "section": "VARC",
+      "topic": "Odd One Out",
+      "title": "Solving Odd One Out",
+      "content": "Strategy:\n1. Identify the Main Idea of the group\n2. Find the sentence NOT aligned to the main idea or that breaks logical flow\n3. Verify: remaining sentences form a coherent paragraph\n\nCommon patterns:\n• One sentence discusses a completely different topic\n• One sentence contradicts the tone (positive vs negative)\n• One sentence is about a different time period\n• One sentence introduces an unrelated example",
+      "sort_order": 2
+    },
+    {
+      "id": 7,
+      "section": "VARC",
+      "topic": "Para Summary",
+      "title": "Solving Para Summary",
+      "content": "Two-question framework:\n1. Who/what is the passage about? → TOPIC\n2. What is the main idea about that topic? → MAIN IDEA\n\nApply same two questions to each option. Correct summary matches both Topic AND Main Idea.\n\nCommon wrong-answer traps:\n• Uses specific detail but misses main idea\n• Technically true but too broad/narrow\n• Introduces information NOT in passage\n• Distorts meaning (reverses a relationship)",
+      "sort_order": 3
+    },
+    {
+      "id": 8,
+      "section": "DILR",
+      "topic": "Syllogisms",
+      "title": "Syllogism Rules",
+      "content": "Logical Connectives:\n• If A, Then B: A→B valid, Not B→Not A valid (contrapositive)\n  INVALID: B→A (converse), Not A→Not B (inverse)\n• If and Only If: All four forms valid\n• Either Or: Not A→B, Not B→A, A→Not B, B→Not A\n\nPremise Types:\n1. All A are B → Some B are A (valid)\n2. Some A are B → Some B are A (valid)\n3. No A is B → No B is A (valid)\n4. Some A are not B → No definite conclusion about B\n\nChaining Rules:\n• All A→B + All B→C = All A→C\n• Some A→B does NOT give All A→B\n• \"All A→B\" does NOT mean \"All B→A\"\n\nMethod: Draw Venn diagrams. Check which conclusions are TRUE in ALL possible diagrams.",
+      "sort_order": 1
+    },
+    {
+      "id": 9,
+      "section": "DILR",
+      "topic": "Direction Sense",
+      "title": "Direction Sense Formulas",
+      "content": "Basic Rules:\n• Right turn facing North → face East\n• Left turn facing North → face West\n• 180° turn → reverses direction\n• 45° clockwise from North = Northeast\n\nSolving Method:\n1. Draw the path on paper\n2. Track net displacement: East-West (x) and North-South (y)\n3. Distance from start = √(x² + y²)\n\nCommon Patterns:\n• If path ends back on same N-S line → distance = net E-W displacement\n• If path ends back on same E-W line → distance = net N-S displacement\n• Rectangular paths: opposite sides cancel out",
+      "sort_order": 2
+    },
+    {
+      "id": 10,
+      "section": "DILR",
+      "topic": "Coding-Decoding",
+      "title": "Coding-Decoding Patterns",
+      "content": "Common Patterns:\n• +1 shift: A→B, B→C (each letter moves one position forward)\n• −1 shift: B→A, C→B (each letter moves backward)\n• Position product: code = product of alphabetical positions\n  Example: NO = 14×15 = 210\n• Position sum: code = sum of positions\n• Mirror code: A(1)↔Z(26), B(2)↔Y(25) (formula: 27 − position)\n\nFor word-code problems:\n• Find common words across sentences\n• Match common codes to identify each word\n• Use elimination to find remaining codes",
+      "sort_order": 3
+    },
+    {
+      "id": 11,
+      "section": "DILR",
+      "topic": "Percentages & Ratios",
+      "title": "DI Calculation Shortcuts",
+      "content": "Percentage Calculation:\n• % change = (New − Old) / Old × 100\n• Successive changes: if +a% then −b%, net = a − b − ab/100\n\nPercentage Rule (Left to Right):\n1. Remove 50% of denominator from numerator → 50%\n2. Remove 10% of denominator → 10%\n3. Continue with 1%, 0.1% etc.\n4. Stop when options distinguishable\n\nRatio Comparison:\n• Compare a/b vs c/d: cross multiply (a×d vs c×b)\n• If % increase in numerator > denominator → ratio increases\n\nAverage (Assumed Mean):\n1. Pick assumed mean (AM)\n2. Calculate deviations\n3. Average = AM + (sum of deviations / count)\n\nRevenue: R = P × Q. If Q = a−P (linear), max R at P = a/2",
+      "sort_order": 4
+    }
+  ]
+}
