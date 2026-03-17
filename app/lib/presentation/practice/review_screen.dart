@@ -290,6 +290,17 @@ class _ReviewCard extends StatelessWidget {
                     color: AppColors.grey700,
                   ),
                 ),
+                if (question.explanationImagePath != null) ...[
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      question.explanationImagePath!,
+                      errorBuilder: (_, e, s) =>
+                          const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
