@@ -7,12 +7,14 @@ class ReviewState {
   final int currentIndex;
   final bool loading;
   final bool wrongOnly;
+  final int requestId;
 
   const ReviewState({
     this.questions = const [],
     this.currentIndex = 0,
     this.loading = true,
     this.wrongOnly = false,
+    this.requestId = 0,
   });
 
   AnsweredQuestion? get current =>
@@ -26,12 +28,14 @@ class ReviewState {
     int? currentIndex,
     bool? loading,
     bool? wrongOnly,
+    int? requestId,
   }) {
     return ReviewState(
       questions: questions ?? this.questions,
       currentIndex: currentIndex ?? this.currentIndex,
       loading: loading ?? this.loading,
       wrongOnly: wrongOnly ?? this.wrongOnly,
+      requestId: requestId ?? this.requestId,
     );
   }
 }
@@ -42,8 +46,17 @@ class ReviewCubit extends Cubit<ReviewState> {
   ReviewCubit(this._repo) : super(const ReviewState());
 
   Future<void> load({bool wrongOnly = false}) async {
-    emit(state.copyWith(loading: true, wrongOnly: wrongOnly));
+    final newRequestId = state.requestId + 1;
+    emit(state.copyWith(
+      loading: true,
+      wrongOnly: wrongOnly,
+      requestId: newRequestId,
+    ));
     final questions = await _repo.getAnsweredQuestions(wrongOnly: wrongOnly);
+    if (state.requestId != newRequestId) {
+      // A newer load has been started; ignore this stale result.
+      return;
+    }
     emit(state.copyWith(
       questions: questions,
       currentIndex: 0,
