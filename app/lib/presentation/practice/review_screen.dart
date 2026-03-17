@@ -24,7 +24,9 @@ class ReviewScreen extends StatelessWidget {
           BlocBuilder<ReviewCubit, ReviewState>(
             builder: (context, state) {
               return IconButton(
-                onPressed: () => context.read<ReviewCubit>().toggleFilter(),
+                onPressed: state.loading
+                    ? null
+                    : () => context.read<ReviewCubit>().toggleFilter(),
                 icon: Icon(
                   state.wrongOnly
                       ? Icons.filter_alt
