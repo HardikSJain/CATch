@@ -199,12 +199,12 @@ class PracticeScreen extends StatelessWidget {
   }
 
   String _modeLabel() {
-    return switch (mode) {
-      'daily_min' => 'Daily Minimum',
-      'focused' => 'Focused: ${section ?? ""}',
-      'adaptive' => 'Smart Practice',
-      'retry_missed' => 'Retry Missed',
-      _ => 'Practice',
+    final practiceMode = PracticeMode.fromValue(mode);
+    return switch (practiceMode) {
+      PracticeMode.dailyMin => 'Daily Minimum',
+      PracticeMode.focused => 'Focused: ${section ?? ""}',
+      PracticeMode.adaptive => 'Smart Practice',
+      PracticeMode.retryMissed => 'Retry Missed',
     };
   }
 }

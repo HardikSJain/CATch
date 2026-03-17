@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import '../../core/constants.dart';
 import '../../data/models/daily_target.dart';
 import '../../domain/repositories/daily_target_repository.dart';
 import 'database_service.dart';
@@ -53,18 +54,20 @@ class LocalDailyTargetRepository implements DailyTargetRepository {
     final db = await _dbService.database;
     final today = _today();
 
-    if (mode == 'daily_min') {
-      final column = switch (section) {
-        'DILR' => 'dilr_min_completed',
-        'QA' => 'qa_min_completed',
-        'VARC' => 'varc_min_completed',
-        _ => 'qa_min_completed',
+    final practiceMode = PracticeMode.fromValue(mode);
+
+    if (practiceMode == PracticeMode.dailyMin) {
+      final sectionEnum = Section.fromCode(section);
+      final column = switch (sectionEnum) {
+        Section.dilr => 'dilr_min_completed',
+        Section.qa => 'qa_min_completed',
+        Section.varc => 'varc_min_completed',
       };
       await db.rawUpdate(
         'UPDATE daily_targets SET $column = $column + 1 WHERE date = ?',
         [today],
       );
-    } else if (mode == 'focused') {
+    } else if (practiceMode == PracticeMode.focused) {
       await db.rawUpdate(
         'UPDATE daily_targets SET focus_completed = focus_completed + 1 WHERE date = ?',
         [today],

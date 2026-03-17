@@ -37,11 +37,10 @@ class LocalQuestionRepository implements QuestionRepository {
   Future<List<Question>> getAdaptiveQuestions({int limit = 30}) async {
     final db = await _dbService.database;
 
-    // Get accuracy by topic from user_attempts
+    // Get accuracy by topic from user_attempts (weakest first)
     final topicStats = await db.rawQuery('''
-      SELECT q.topic, q.section,
-        AVG(CASE WHEN ua.is_correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy,
-        COUNT(*) as attempts
+      SELECT q.topic,
+        AVG(CASE WHEN ua.is_correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy
       FROM user_attempts ua
       JOIN questions q ON q.id = ua.question_id
       GROUP BY q.topic
@@ -49,32 +48,33 @@ class LocalQuestionRepository implements QuestionRepository {
     ''');
 
     if (topicStats.isEmpty) {
-      // No attempts yet — fall back to random
       return getUnattemptedQuestions(limit: limit);
     }
 
-    // Build ordered topic list (weakest first)
-    final weakTopics = topicStats
-        .map((row) => row['topic'] as String)
-        .toList();
+    // Build topic → priority map (lower = weaker = higher priority)
+    final topicPriority = <String, int>{};
+    for (var i = 0; i < topicStats.length; i++) {
+      topicPriority[topicStats[i]['topic'] as String] = i;
+    }
+    final defaultPriority = topicStats.length;
 
-    // Fetch unattempted questions prioritizing weak topics
-    final caseOrder = weakTopics.asMap().entries
-        .map((e) => "WHEN topic = '${e.value}' THEN ${e.key}")
-        .join(' ');
-
+    // Fetch unattempted questions (random order from DB)
     final maps = await db.rawQuery('''
       SELECT * FROM questions
       WHERE id NOT IN (SELECT question_id FROM user_attempts)
-      ORDER BY CASE $caseOrder ELSE ${weakTopics.length} END, RANDOM()
+      ORDER BY RANDOM()
       LIMIT ?
-    ''', [...weakTopics, limit]);
+    ''', [limit * 3]); // Over-fetch to allow Dart-side prioritization
 
-    // Note: we don't use weakTopics as whereArgs in CASE since they're
-    // inlined; the placeholders approach would be complex for CASE WHEN.
-    // The LIMIT is the only bound param.
+    // Sort in Dart by weak-topic priority, then take the limit
+    final questions = maps.map(Question.fromMap).toList()
+      ..sort((a, b) {
+        final pa = topicPriority[a.topic] ?? defaultPriority;
+        final pb = topicPriority[b.topic] ?? defaultPriority;
+        return pa.compareTo(pb);
+      });
 
-    return maps.map(Question.fromMap).toList();
+    return questions.take(limit).toList();
   }
 
   @override
@@ -99,10 +99,10 @@ class LocalQuestionRepository implements QuestionRepository {
       SELECT q.* FROM questions q
       JOIN user_attempts ua ON ua.question_id = q.id
       WHERE ua.is_correct = 0
-        AND ua.attempted_at >= datetime('now', '-$days days')
+        AND ua.attempted_at >= datetime('now', '-' || ? || ' days')
       ORDER BY ua.attempted_at DESC
       LIMIT ?
-    ''', [limit]);
+    ''', [days, limit]);
     return maps.map(Question.fromMap).toList();
   }
 }

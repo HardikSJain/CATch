@@ -54,9 +54,9 @@ class LocalStatsRepository implements StatsRepository {
         SUM(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) as correct,
         AVG(CASE WHEN is_correct = 1 THEN 1.0 ELSE 0.0 END) as accuracy
       FROM user_attempts
-      WHERE attempted_at >= datetime('now', '-$days days')
+      WHERE attempted_at >= datetime('now', '-' || ? || ' days')
       GROUP BY DATE(attempted_at)
       ORDER BY date ASC
-    ''');
+    ''', [days]);
   }
 }

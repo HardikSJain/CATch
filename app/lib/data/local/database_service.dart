@@ -175,15 +175,14 @@ class DatabaseService {
     await db.execute(
       'CREATE INDEX idx_concept_reviews_date ON concept_reviews(next_review_date)',
     );
-    await db.execute(
-      'CREATE INDEX idx_daily_targets_date ON daily_targets(date)',
-    );
+    // Note: daily_targets.date has a UNIQUE constraint which already
+    // creates an implicit index in SQLite, so no explicit index needed.
 
     // Seed default study schedule
     await db.execute('''
       INSERT INTO study_schedule (day_of_week, focus_section) VALUES
       (1, 'QA'), (2, 'VARC'), (3, 'DILR'),
-      (4, 'QA'), (5, 'VARC'), (6, 'DILR'), (7, 'MOCK')
+      (4, 'QA'), (5, 'VARC'), (6, 'DILR'), (7, 'QA')
     ''');
   }
 }
