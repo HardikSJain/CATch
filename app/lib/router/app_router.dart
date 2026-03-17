@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/constants.dart';
+import '../di/injection.dart';
+import '../data/local/home_facade.dart';
+import '../domain/repositories/question_repository.dart';
+import '../domain/repositories/attempt_repository.dart';
+import '../domain/repositories/daily_target_repository.dart';
+import '../domain/repositories/concept_repository.dart';
+import '../domain/repositories/stats_repository.dart';
 import '../presentation/home/home_screen.dart';
+import '../presentation/home/cubit/home_cubit.dart';
 import '../presentation/practice/practice_screen.dart';
+import '../presentation/practice/cubit/practice_cubit.dart';
 import '../presentation/learn/concepts_screen.dart';
+import '../presentation/learn/cubit/concepts_cubit.dart';
 import '../presentation/learn/flashcard_screen.dart';
+import '../presentation/learn/cubit/flashcard_cubit.dart';
 import '../presentation/stats/stats_screen.dart';
+import '../presentation/stats/cubit/stats_cubit.dart';
 import '../presentation/settings/settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -21,8 +35,11 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/home',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: HomeScreen(),
+          pageBuilder: (context, state) => NoTransitionPage(
+            child: BlocProvider(
+              create: (_) => HomeCubit(sl<HomeFacade>())..load(),
+              child: const HomeScreen(),
+            ),
           ),
         ),
         GoRoute(
@@ -33,14 +50,20 @@ final appRouter = GoRouter(
         ),
         GoRoute(
           path: '/learn',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ConceptsScreen(),
+          pageBuilder: (context, state) => NoTransitionPage(
+            child: BlocProvider(
+              create: (_) => ConceptsCubit(sl<ConceptRepository>())..load(),
+              child: const ConceptsScreen(),
+            ),
           ),
         ),
         GoRoute(
           path: '/stats',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: StatsScreen(),
+          pageBuilder: (context, state) => NoTransitionPage(
+            child: BlocProvider(
+              create: (_) => StatsCubit(sl<StatsRepository>())..load(),
+              child: const StatsScreen(),
+            ),
           ),
         ),
       ],
@@ -50,15 +73,29 @@ final appRouter = GoRouter(
       path: '/practice/session',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final mode = state.uri.queryParameters['mode'] ?? 'focused';
+        final modeStr = state.uri.queryParameters['mode'] ?? 'focused';
         final section = state.uri.queryParameters['section'];
-        return PracticeScreen(mode: mode, section: section);
+        final mode = PracticeMode.fromValue(modeStr);
+
+        return BlocProvider(
+          create: (_) => PracticeCubit(
+            questionRepo: sl<QuestionRepository>(),
+            attemptRepo: sl<AttemptRepository>(),
+            dailyTargetRepo: sl<DailyTargetRepository>(),
+            mode: mode,
+            section: section,
+          )..loadQuestions(),
+          child: PracticeScreen(mode: modeStr, section: section),
+        );
       },
     ),
     GoRoute(
       path: '/learn/review',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FlashcardScreen(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => FlashcardCubit(sl<ConceptRepository>())..load(),
+        child: const FlashcardScreen(),
+      ),
     ),
     GoRoute(
       path: '/settings',

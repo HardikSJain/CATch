@@ -1,173 +1,148 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants.dart';
-import '../../di/injection.dart';
-import '../../domain/repositories/concept_repository.dart';
+import 'cubit/concepts_cubit.dart';
 
-class ConceptsScreen extends StatefulWidget {
+class ConceptsScreen extends StatelessWidget {
   const ConceptsScreen({super.key});
 
   @override
-  State<ConceptsScreen> createState() => _ConceptsScreenState();
-}
-
-class _ConceptsScreenState extends State<ConceptsScreen> {
-  final _repo = sl<ConceptRepository>();
-  String _selectedSection = 'QA';
-  List<Map<String, dynamic>> _concepts = [];
-  bool _loading = true;
-  int _reviewDue = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadConcepts();
-    _loadReviewCount();
-  }
-
-  Future<void> _loadConcepts() async {
-    setState(() => _loading = true);
-    final concepts = await _repo.getConcepts(section: _selectedSection);
-    if (mounted) {
-      setState(() {
-        _concepts = concepts;
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _loadReviewCount() async {
-    final count = await _repo.getDueForReviewCount();
-    if (mounted) setState(() => _reviewDue = count);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'Learn',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ),
-                  if (_reviewDue > 0)
-                    GestureDetector(
-                      onTap: () => context.push('/learn/review'),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.grey900,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+    return BlocBuilder<ConceptsCubit, ConceptsState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+                  child: Row(
+                    children: [
+                      const Expanded(
                         child: Text(
-                          'Review ($_reviewDue)',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 20),
-              child: Text(
-                'Theory, formulas & concepts',
-                style: TextStyle(fontSize: 14, color: AppColors.grey500),
-              ),
-            ),
-
-            // Section tabs
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: Section.values.map((section) {
-                  final isSelected = _selectedSection == section.code;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() => _selectedSection = section.code);
-                        _loadConcepts();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.grey900 : AppColors.grey100,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          section.label,
+                          'Learn',
                           style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: isSelected ? Colors.white : AppColors.grey600,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
                           ),
                         ),
                       ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
+                      if (state.reviewDue > 0)
+                        GestureDetector(
+                          onTap: () => context.push('/learn/review'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey900,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Review (${state.reviewDue})',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(24, 0, 24, 20),
+                  child: Text(
+                    'Theory, formulas & concepts',
+                    style: TextStyle(fontSize: 14, color: AppColors.grey500),
+                  ),
+                ),
 
-            const SizedBox(height: 20),
+                // Section tabs
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: Section.values.map((section) {
+                      final isSelected =
+                          state.selectedSection == section.code;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: GestureDetector(
+                          onTap: () => context
+                              .read<ConceptsCubit>()
+                              .selectSection(section.code),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.grey900
+                                  : AppColors.grey100,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              section.label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.grey600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
 
-            // Concepts list
-            Expanded(
-              child: _loading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.black,
-                        strokeWidth: 1.5,
-                      ),
-                    )
-                  : _concepts.isEmpty
+                const SizedBox(height: 20),
+
+                // Concepts list
+                Expanded(
+                  child: state.loading
                       ? const Center(
-                          child: Text(
-                            'No concepts yet',
-                            style: TextStyle(color: AppColors.grey500),
+                          child: CircularProgressIndicator(
+                            color: Colors.black,
+                            strokeWidth: 1.5,
                           ),
                         )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 24),
-                          itemCount: _concepts.length,
-                          itemBuilder: (context, index) {
-                            final c = _concepts[index];
-                            return _ConceptTile(
-                              topic: c['topic'] as String,
-                              title: c['title'] as String,
-                              content: c['content'] as String,
-                            );
-                          },
-                        ),
+                      : state.concepts.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No concepts yet',
+                                style: TextStyle(color: AppColors.grey500),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24),
+                              itemCount: state.concepts.length,
+                              itemBuilder: (context, index) {
+                                final c = state.concepts[index];
+                                return _ConceptTile(
+                                  topic: c['topic'] as String,
+                                  title: c['title'] as String,
+                                  content: c['content'] as String,
+                                );
+                              },
+                            ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

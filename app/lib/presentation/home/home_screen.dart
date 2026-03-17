@@ -1,23 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants.dart';
 import '../../data/local/home_facade.dart';
-import '../../di/injection.dart';
+import 'cubit/home_cubit.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final _facade = sl<HomeFacade>();
-  HomeData? _data;
-  bool _loading = true;
-
-  // Motivational lines that rotate
   static const _motivations = [
     'Consistency beats intensity.',
     'One more question than yesterday.',
@@ -26,56 +17,48 @@ class _HomeScreenState extends State<HomeScreen> {
     'Every question is a rep.',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    try {
-      final data = await _facade.loadHomeData();
-      if (mounted) {
-        setState(() {
-          _data = data;
-          _loading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
   String get _motivationalLine {
-    final dayOfYear = DateTime.now().difference(
-      DateTime(DateTime.now().year),
-    ).inDays;
+    final dayOfYear = DateTime.now()
+        .difference(DateTime(DateTime.now().year))
+        .inDays;
     return _motivations[dayOfYear % _motivations.length];
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: CircularProgressIndicator(color: Colors.black, strokeWidth: 1.5),
-        ),
-      );
-    }
+    return BlocBuilder<HomeCubit, HomeState>(
+      builder: (context, state) {
+        if (state.loading) {
+          return const Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.black,
+                strokeWidth: 1.5,
+              ),
+            ),
+          );
+        }
 
-    final data = _data;
-    if (data == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Text('Could not load data', style: TextStyle(color: AppColors.grey500)),
-        ),
-      );
-    }
+        if (state.error != null || state.data == null) {
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Text(
+                state.error ?? 'Could not load data',
+                style: const TextStyle(color: AppColors.grey500),
+              ),
+            ),
+          );
+        }
 
-    final now = DateTime.now();
-    final dateStr = DateFormat('EEE, MMM d').format(now);
+        return _buildContent(context, state.data!);
+      },
+    );
+  }
+
+  Widget _buildContent(BuildContext context, HomeData data) {
+    final dateStr = DateFormat('EEE, MMM d').format(DateTime.now());
     final target = data.todayTarget;
 
     return Scaffold(
@@ -83,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           color: Colors.black,
-          onRefresh: _loadData,
+          onRefresh: () => context.read<HomeCubit>().refresh(),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             children: [
@@ -114,7 +97,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  // Settings gear
                   GestureDetector(
                     onTap: () => context.push('/settings'),
                     child: const Padding(
@@ -136,7 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   if (data.daysToExam != null) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.grey900,
                         borderRadius: BorderRadius.circular(20),
@@ -154,7 +139,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                   if (data.streak > 0)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.grey100,
                         borderRadius: BorderRadius.circular(20),
@@ -173,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 8),
 
-              // Motivational line
               Text(
                 _motivationalLine,
                 style: const TextStyle(
@@ -185,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               const SizedBox(height: 28),
 
-              // Today's focus recommendation
+              // Concepts due for review
               if (data.conceptsToReview > 0) ...[
                 GestureDetector(
                   onTap: () => context.push('/learn/review'),
@@ -198,15 +185,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.lightbulb_outline, size: 20, color: AppColors.grey600),
+                        const Icon(Icons.lightbulb_outline,
+                            size: 20, color: AppColors.grey600),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             '${data.conceptsToReview} concepts due for review',
-                            style: const TextStyle(fontSize: 14, color: AppColors.grey700),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: AppColors.grey700,
+                            ),
                           ),
                         ),
-                        const Icon(Icons.chevron_right, size: 18, color: AppColors.grey400),
+                        const Icon(Icons.chevron_right,
+                            size: 18, color: AppColors.grey400),
                       ],
                     ),
                   ),
@@ -226,18 +218,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
 
-              _buildChecklistItem('DILR', target.dilrMinCompleted, target.dilrMinTarget),
-              _buildChecklistItem('Quant', target.qaMinCompleted, target.qaMinTarget),
-              _buildChecklistItem('VARC', target.varcMinCompleted, target.varcMinTarget),
+              _ChecklistItem(
+                label: 'DILR',
+                completed: target.dilrMinCompleted,
+                target: target.dilrMinTarget,
+              ),
+              _ChecklistItem(
+                label: 'Quant',
+                completed: target.qaMinCompleted,
+                target: target.qaMinTarget,
+              ),
+              _ChecklistItem(
+                label: 'VARC',
+                completed: target.varcMinCompleted,
+                target: target.varcMinTarget,
+              ),
 
               const SizedBox(height: 16),
 
               if (!target.isDailyMinComplete)
-                _buildButton(
-                  'Start daily minimum',
+                _ActionButton(
+                  label: 'Start daily minimum',
                   onTap: () async {
                     await context.push('/practice/session?mode=daily_min');
-                    _loadData();
+                    if (context.mounted) {
+                      context.read<HomeCubit>().refresh();
+                    }
                   },
                 )
               else
@@ -292,23 +298,29 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? target.focusCompleted / target.focusTarget
                             : 0,
                         backgroundColor: AppColors.grey200,
-                        valueColor: const AlwaysStoppedAnimation(AppColors.grey800),
+                        valueColor:
+                            const AlwaysStoppedAnimation(AppColors.grey800),
                         minHeight: 3,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       '${target.focusCompleted} of ${target.focusTarget}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.grey500),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.grey500,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    _buildButton(
-                      'Continue',
+                    _ActionButton(
+                      label: 'Continue',
                       onTap: () async {
                         await context.push(
                           '/practice/session?mode=focused&section=${target.focusSection ?? "QA"}',
                         );
-                        _loadData();
+                        if (context.mounted) {
+                          context.read<HomeCubit>().refresh();
+                        }
                       },
                     ),
                   ],
@@ -331,11 +343,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildStatCell('Solved', '${data.stats['total']}'),
+                    _StatCell(label: 'Solved', value: '${data.stats['total']}'),
                     const SizedBox(width: 24),
-                    _buildStatCell('Accuracy', '${data.stats['accuracy']}%'),
+                    _StatCell(
+                        label: 'Accuracy',
+                        value: '${data.stats['accuracy']}%'),
                     const SizedBox(width: 24),
-                    _buildStatCell('Streak', '${data.streak}'),
+                    _StatCell(label: 'Streak', value: '${data.streak}'),
                   ],
                 ),
               ],
@@ -347,8 +361,21 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildChecklistItem(String label, int completed, int target) {
+class _ChecklistItem extends StatelessWidget {
+  final String label;
+  final int completed;
+  final int target;
+
+  const _ChecklistItem({
+    required this.label,
+    required this.completed,
+    required this.target,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final done = completed >= target;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -392,8 +419,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildButton(String label, {required VoidCallback onTap}) {
+class _ActionButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -415,8 +450,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
 
-  Widget _buildStatCell(String label, String value) {
+class _StatCell extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatCell({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
