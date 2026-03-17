@@ -12,7 +12,6 @@
 ╚══════════════════════════════════════════════════════════════╝
 
 🎯 Repository: CATch
-📍 Location: ~/.openclaw/workspace/catch
 ✅ Status: READY TO PUSH
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -56,7 +55,6 @@ Git Status:
    → Don't initialize with README/LICENSE
 
 2. Push to GitHub:
-   cd ~/.openclaw/workspace/catch
    git remote add origin https://github.com/YOUR_USERNAME/catch.git
    git branch -M main
    git push -u origin main

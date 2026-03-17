@@ -383,7 +383,7 @@ If you see "Database ready!" → You're done for tonight! ✅
 
 ### Step 1: Screenshot Images (2 hours)
 
-1. Open `~/.openclaw/workspace/cat-prep/quant.pdf` page 101
+1. Open `quant.pdf` page 101
 2. Screenshot questions 62-71 (10 questions)
 3. For questions with diagrams (e.g., geometry), crop and save
 4. Save as: `q_1.png`, `q_2.png`, etc. in `assets/images/questions/`

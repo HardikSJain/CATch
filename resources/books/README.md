@@ -48,7 +48,7 @@ git commit -m "Add Arun Sharma PDFs via Git LFS"
 
 PDFs are available locally at:
 ```
-/home/hardiksjain/.openclaw/workspace/cat-prep-tracker-repo/resources/books/
+/resources/books/
 ```
 
 But **not tracked in Git** by default.

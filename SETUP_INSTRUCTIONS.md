@@ -52,7 +52,6 @@ catch-repo/
 GitHub will show you these commands. Run them from this directory:
 
 ```bash
-cd ~/.openclaw/workspace/catch-repo
 
 # Add your GitHub repo as remote
 git remote add origin https://github.com/YOUR_USERNAME/catch.git
@@ -85,7 +84,6 @@ git push -u origin main
 **Best if you want to track PDFs in Git:**
 
 ```bash
-cd ~/.openclaw/workspace/catch-repo
 
 # Install Git LFS (one-time)
 git lfs install
@@ -127,7 +125,6 @@ PDFs stay in your local copy only. Update README to say:
 ### 1. Build the Flutter App
 
 ```bash
-cd ~/.openclaw/workspace/catch-repo/app
 
 # Create Flutter project
 flutter create .
